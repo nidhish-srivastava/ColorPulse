@@ -14,7 +14,7 @@ function Hero({
 
   const [showPicker, setShowPicker] = useState(false);
   const [selected, setSelected] = useState("");
-  const [pickerPosition,setPickerPosition] = useState({left : "",top : ""})
+  const [pickerPosition, setPickerPosition] = useState({ x: 0, y: 0 });
 
   const updateUrlParams = () => {
     const colorsParam = `${primary}-${secondary}-${primaryButton}-${secondaryButton}-${accent}`;
@@ -285,13 +285,12 @@ function Hero({
   //       window.removeEventListener("click", handleOutsideClick);
   //     };
   //   }, [modalRef]);
-  const clickHandler = (event,e) => {
-    const {clientX,clientY} = event
-    const pickerPosition = {
-      left: clientX,
-      top: clientY - 350, // Adjust this value to position the picker above the button
-    };
-    setPickerPosition(pickerPosition)
+  const clickHandler = (event, e) => {
+    const buttonRect = event.target.getBoundingClientRect();
+    const pickerX = buttonRect.left;
+    const pickerY = buttonRect.top - 300; // Adjust this value for the picker's vertical offset
+    setPickerPosition({ x: pickerX, y: pickerY });
+
     if (e == "Text") {
       setSelected(primary);
     }
@@ -344,14 +343,14 @@ function Hero({
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-12 md:flex-row-reverse w-full my-20 sm:w-4/5 mx-auto">
+      <div className="flex flex-col justify-center gap-12 md:flex-row-reverse w-full mt-20 pb-64 sm:w-4/5 mx-auto">
         <div style={{ color: primary }} className="w-1/2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 652 644"
             fill="none"
-            width={`652`}
-            height={`644`}
+            width={`552`}
+            height={`544`}
             //   className={`w-${width}`}
           >
             <rect
@@ -568,26 +567,26 @@ function Hero({
         </div>
         <div
           style={{ color: primary }}
-          className="w-1/2 py-8 px-12 flex flex-col gap-16 items-start"
+          className="md:w-1/2 px-12 flex flex-col gap-16 items-start w-full"
         >
-          <h2 className="text-6xl font-bold">
+          <h2 className="text-4xl font-bold">
             Test Your <span>Colors</span>
             <br />
             On a Real Website
           </h2>
-          <p className="text-3xl">
+          <p className="text-2xl">
             Choosing a color palette for your website? Use the Toolbar below to
             realize your choices.
           </p>
           <div className=" space-x-4">
             <button
-              className="px-8 py-4  text-2xl rounded-xl"
+              className="px-8 py-4  text-xl rounded-xl"
               style={{ backgroundColor: primaryButton }}
             >
               Get started
             </button>
             <button
-              className="px-8 py-4 text-2xl rounded-xl"
+              className="px-8 py-4 text-xl rounded-xl"
               style={{ backgroundColor: secondaryButton }}
             >
               How does it work
@@ -597,12 +596,12 @@ function Hero({
       </div>
       {showPicker && (
         <div
-         className="absolute"
-         style={{
-          left : pickerPosition.left,
-          top : pickerPosition.top
-         }}
-         >
+          className="fixed"
+          style={{
+            left: pickerPosition.x,
+            top: pickerPosition.y,
+          }}
+        >
           <SketchPicker
             color={selected}
             disableAlpha
@@ -612,45 +611,45 @@ function Hero({
       )}
       <div
         style={{ color: primary }}
-        className="flex gap-2 fixed bottom-16 justify-center z-100 bg-slate-400 bg-opacity-35 left-[27%] p-2 rounded-xl"
+        className="flex gap-2 fixed bottom-10 justify-center z-100 bg-slate-400 bg-opacity-35 left-[22%] p-2 rounded-xl"
       >
         <button
           style={{ backgroundColor: secondary }}
-          className="py-6 text-[1.3rem] bg-white rounded px-6"
-          onClick={(e) => clickHandler(e,"Text")}
+          className="py-6 text-[1.1rem] bg-white rounded px-6"
+          onClick={(e) => clickHandler(e, "Text")}
         >
           Text
         </button>
         <button
           style={{ backgroundColor: secondary }}
-          className="py-6 text-[1.3rem] rounded px-6"
-          onClick={(e) => clickHandler(e,"Background")}
+          className="py-6 text-[1.1rem] rounded px-6"
+          onClick={(e) => clickHandler(e, "Background")}
         >
           Background
         </button>
         <button
           style={{ backgroundColor: primaryButton }}
-          className="py-6 text-[1.3rem] rounded px-6"
-          onClick={(e) => clickHandler(e,"Primary Button")}
+          className="py-6 text-[1.1rem] rounded px-6"
+          onClick={(e) => clickHandler(e, "Primary Button")}
         >
           Primary Button
         </button>
         <button
           style={{ backgroundColor: secondaryButton }}
-          className="py-6 text-[1.3rem] rounded px-6"
-          onClick={(e) => clickHandler(e,"Secondary Button")}
+          className="py-6 text-[1.1rem] rounded px-6"
+          onClick={(e) => clickHandler(e, "Secondary Button")}
         >
           Secondary Button
         </button>
         <button
           style={{ backgroundColor: accent }}
-          className="py-6 text-[1.3rem]  rounded px-6"
-          onClick={(e) => clickHandler(e,"Accent")}
+          className="py-6 text-[1.1rem]  rounded px-6"
+          onClick={(e) => clickHandler(e, "Accent")}
         >
           Accent
         </button>
         <button
-          className="py-6 text-[1.3rem] bg-white text-black rounded px-6"
+          className="py-6 text-[1.1rem] bg-white text-black rounded px-6"
           onClick={randomColorHandler}
         >
           Randomise
