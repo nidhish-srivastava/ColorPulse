@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SketchPicker } from "react-color";
+import Export from "./Icons/Export";
+import Randomise from "./Icons/Randomise";
 function Hero({
   secondary,
   setSecondary,
@@ -7,10 +9,11 @@ function Hero({
   setPrimaryButton,
   primary,
   setPrimary,
+  accent,
+  setAccent
 }) {
   //   const [width, setWidth] = useState(window.innerWidth);
   const [secondaryButton, setSecondaryButton] = useState("#f2f2f2");
-  const [accent, setAccent] = useState("#ffb084");
 
   const [showPicker, setShowPicker] = useState(false);
   const [selected, setSelected] = useState("");
@@ -245,6 +248,7 @@ function Hero({
     },
   ];
 
+
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const colorsParam = searchParams.get("colors");
@@ -265,26 +269,6 @@ function Hero({
     updateUrlParams();
   }, [primary, secondary, primaryButton, secondaryButton, accent]);
 
-  //   useEffect(() => {
-  //     const updateWidthHandler = () => {
-  //       setWidth(window.innerWidth);
-  //     };
-  //     window.addEventListener("resize", updateWidthHandler);
-  //     return () => window.removeEventListener("resize", updateWidthHandler);
-  //   }, []);
-  //   useEffect(() => {
-  //     const handleOutsideClick = (event) => {
-  //       if (modalRef.current && !modalRef.current.contains(event.target)) {
-  //         setShowPicker(false);
-  //       }
-  //     };
-
-  //     window.addEventListener("click", handleOutsideClick);
-
-  //     return () => {
-  //       window.removeEventListener("click", handleOutsideClick);
-  //     };
-  //   }, [modalRef]);
   const clickHandler = (event, e) => {
     const buttonRect = event.target.getBoundingClientRect();
     const pickerX = buttonRect.left;
@@ -308,6 +292,17 @@ function Hero({
     }
     setShowPicker((prev) => !prev);
   };
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+  
   const changeColorInPickerHandler = (e) => {
     let hex = e.hex;
     if (selected == primary) {
@@ -343,7 +338,7 @@ function Hero({
   };
   return (
     <>
-      <div className="flex flex-col justify-center gap-12 md:flex-row-reverse w-full mt-20 pb-64 sm:w-4/5 mx-auto">
+      <div className="flex flex-col-reverse justify-center gap-12 md:flex-row-reverse w-full sm:w-4/5 mx-auto">
         <div style={{ color: primary }} className="w-1/2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -569,7 +564,7 @@ function Hero({
           style={{ color: primary }}
           className="md:w-1/2 px-12 flex flex-col gap-16 items-start w-full"
         >
-          <h2 className="text-4xl font-bold">
+          <h2 className="text-5xl font-bold">
             Test Your <span>Colors</span>
             <br />
             On a Real Website
@@ -578,18 +573,20 @@ function Hero({
             Choosing a color palette for your website? Use the Toolbar below to
             realize your choices.
           </p>
-          <div className=" space-x-4">
+          <div className="flex space-x-4">
             <button
-              className="px-8 py-4  text-xl rounded-xl"
+              className="px-8 py-4  text-[1.2rem] rounded-xl"
               style={{ backgroundColor: primaryButton }}
             >
               Get started
             </button>
             <button
-              className="px-8 py-4 text-xl rounded-xl"
+              className="px-8 py-4 text-[1.2rem] rounded-xl"
               style={{ backgroundColor: secondaryButton }}
             >
+              <a href="#work">
               How does it work
+              </a>
             </button>
           </div>
         </div>
@@ -611,7 +608,7 @@ function Hero({
       )}
       <div
         style={{ color: primary }}
-        className="flex gap-2 fixed bottom-10 justify-center z-100 bg-slate-400 bg-opacity-35 left-[22%] p-2 rounded-xl"
+        className="flex gap-2 fixed bottom-10 justify-center z-100 bg-slate-400 bg-opacity-35 left-[20%] p-2 rounded-xl"
       >
         <button
           style={{ backgroundColor: secondary }}
@@ -649,10 +646,21 @@ function Hero({
           Accent
         </button>
         <button
-          className="py-6 text-[1.1rem] bg-white text-black rounded px-6"
+          className="flex  gap-3 py-6 text-[1.1rem] bg-white text-black rounded px-6"
+        >
+          Export
+          <span>
+            <Export/>
+          </span>
+        </button>
+        <button
+          className="flex  gap-3 py-6 text-[1.1rem] bg-white text-black rounded px-6"
           onClick={randomColorHandler}
         >
           Randomise
+          <span>
+            <Randomise/>
+          </span>
         </button>
       </div>
     </>
