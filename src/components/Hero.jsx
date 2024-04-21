@@ -657,7 +657,7 @@ function Hero({
         </div>
       )}
       <button
-        className={`fixed border-transparent outline-none bottom-10 right-[10%] z-100 ${
+        className={`fixed sm:hidden  border-transparent outline-none bottom-10 right-[10%] z-100 ${
           showButtonDropdown ? "bg-gray-100" : "bg-black"
         } w-40 flex justify-center p-4`}
         onClick={() => setShowButtonDropDown((prev) => !prev)}
@@ -678,7 +678,7 @@ function Hero({
         </svg>
       </button>
         {showButtonDropdown && (
-          <div className="w-40 fixed bottom-10 right-[10%] gap-2 flex flex-col">
+          <div className="w-40 fixed border border-gray-100 border-opacity-10 bottom-10 right-[10%] gap-2 flex flex-col">
             <ButtonBar
             smaller={true}
               primary={primary}
@@ -691,7 +691,7 @@ function Hero({
               randomColorHandler={randomColorHandler}
             />
             <div className="flex bg-black justify-center items-center py-4 ">
-              <button className="" onClick={()=>setShowButtonDropDown((prev)=>!prev)}>
+              <button onClick={()=>setShowButtonDropDown((prev)=>!prev)}>
               <svg
                 width="30px"
                 height="30px"

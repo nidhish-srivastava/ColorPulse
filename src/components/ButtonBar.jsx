@@ -6,7 +6,7 @@ function ButtonBar({secondary,primaryButton,secondaryButton,accent,clickHandler,
     <>
     <button
       style={{ backgroundColor: secondary }}
-      className="sm:py-6 py-4 text-[1.1rem] bg-white rounded px-6"
+      className="sm:py-6 py-4 text-[1.1rem] rounded px-6"
       onClick={(e) => clickHandler(e, "Text")}
     >
       Text
