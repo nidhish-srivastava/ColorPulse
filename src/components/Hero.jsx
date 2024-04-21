@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect,  useState } from "react";
 import { SketchPicker } from "react-color";
-import Export from "./Icons/Export";
-import Randomise from "./Icons/Randomise";
+import JSZip from "jszip";
+import ButtonBar from "./ButtonBar";
 function Hero({
   secondary,
   setSecondary,
@@ -10,11 +10,11 @@ function Hero({
   primary,
   setPrimary,
   accent,
-  setAccent
+  setAccent,
 }) {
   //   const [width, setWidth] = useState(window.innerWidth);
   const [secondaryButton, setSecondaryButton] = useState("#f2f2f2");
-
+  const [showButtonDropdown, setShowButtonDropDown] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [selected, setSelected] = useState("");
   const [pickerPosition, setPickerPosition] = useState({ x: 0, y: 0 });
@@ -248,7 +248,6 @@ function Hero({
     },
   ];
 
-
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const colorsParam = searchParams.get("colors");
@@ -292,17 +291,7 @@ function Hero({
     }
     setShowPicker((prev) => !prev);
   };
-  function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func.apply(context, args);
-      }, wait);
-    };
-  }
-  
+
   const changeColorInPickerHandler = (e) => {
     let hex = e.hex;
     if (selected == primary) {
@@ -336,6 +325,67 @@ function Hero({
     setSecondaryButton(arr[3]);
     setAccent(arr[4]);
   };
+  function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(",")[1]);
+    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  }
+  const exportzipHandler = () => {
+    const colorValues = [
+      primary,
+      secondary,
+      primaryButton,
+      secondaryButton,
+      accent,
+    ];
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = colorValues.length * 50;
+    canvas.height = 50;
+    for (let i = 0; i < colorValues.length; i++) {
+      ctx.fillStyle = colorValues[i];
+      ctx.fillRect(i * 50, 0, 50, 50);
+    }
+    const paletteImage = canvas.toDataURL("image/png");
+    const paletteBlob = dataURItoBlob(paletteImage);
+    const paletteFile = new File([paletteBlob], "palette.png", {
+      type: "image/png",
+    });
+    const colorText = `Your selected colors:\n
+    Primary: ${primary} (RGB: ${hexToRgb(primary)})
+    Secondary: ${secondary} (RGB: ${hexToRgb(secondary)})
+    Primary Button: ${primaryButton} (RGB: ${hexToRgb(primaryButton)})
+    Secondary Button: ${secondaryButton} (RGB: ${hexToRgb(secondaryButton)})
+    Accent: ${accent} (RGB: ${hexToRgb(accent)})\n
+    Thanks for using ColorPulse!`;
+    const colorBlob = new Blob([colorText], { type: "text/plain" });
+    const colorFile = new File([colorBlob], "colors.txt", {
+      type: "text/plain",
+    });
+    const zip = new JSZip();
+    zip.file(paletteFile.name, paletteFile);
+    zip.file(colorFile.name, colorFile);
+    zip.generateAsync({ type: "blob" }).then(function (blob) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "colors.zip";
+      // Simulate click on the link to trigger download
+      link.click();
+    });
+  };
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.substring(1, 3), 16);
+    const g = parseInt(hex.substring(3, 5), 16);
+    const b = parseInt(hex.substring(5, 7), 16);
+    return `${r}, ${g}, ${b}`;
+  }
+
   return (
     <>
       <div className="flex flex-col-reverse justify-center gap-12 md:flex-row-reverse w-full sm:w-4/5 mx-auto">
@@ -562,9 +612,9 @@ function Hero({
         </div>
         <div
           style={{ color: primary }}
-          className="md:w-1/2 px-12 flex flex-col gap-16 items-start w-full"
+          className="md:w-1/2 px-4 sm:px-12 flex flex-col gap-16 items-start w-full"
         >
-          <h2 className="text-5xl font-bold">
+          <h2 className="text-5xl text-wrap font-bold">
             Test Your <span>Colors</span>
             <br />
             On a Real Website
@@ -573,21 +623,21 @@ function Hero({
             Choosing a color palette for your website? Use the Toolbar below to
             realize your choices.
           </p>
-          <div className="flex space-x-4">
+          <div className="flex items-center justify-center w-full space-x-4">
             <button
-              className="px-8 py-4  text-[1.2rem] rounded-xl"
+              className="p-2 sm:px-8 sm:py-4 text-[1.2rem] rounded-xl"
               style={{ backgroundColor: primaryButton }}
             >
               Get started
             </button>
-            <button
-              className="px-8 py-4 text-[1.2rem] rounded-xl"
-              style={{ backgroundColor: secondaryButton }}
-            >
-              <a href="#work">
-              How does it work
-              </a>
-            </button>
+            <a href="#work">
+              <button
+                className="p-2 sm:px-8 sm:py-4 text-[1.2rem] rounded-xl"
+                style={{ backgroundColor: secondaryButton }}
+              >
+                How does it work
+              </button>
+            </a>
           </div>
         </div>
       </div>
@@ -595,8 +645,8 @@ function Hero({
         <div
           className="fixed"
           style={{
-            left: pickerPosition.x,
-            top: pickerPosition.y,
+            left: showButtonDropdown ? pickerPosition.x - 250 : pickerPosition.x,
+            top: showButtonDropdown ? pickerPosition.y + 250 : pickerPosition.y,
           }}
         >
           <SketchPicker
@@ -606,62 +656,75 @@ function Hero({
           />
         </div>
       )}
+      <button
+        className={`fixed border-transparent outline-none bottom-10 right-[10%] z-100 ${
+          showButtonDropdown ? "bg-gray-100" : "bg-black"
+        } w-40 flex justify-center p-4`}
+        onClick={() => setShowButtonDropDown((prev) => !prev)}
+      >
+        <svg
+          width="30px"
+          height="30px"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M12 3C12.2652 3 12.5196 3.10536 12.7071 3.29289L19.7071 10.2929C20.0976 10.6834 20.0976 11.3166 19.7071 11.7071C19.3166 12.0976 18.6834 12.0976 18.2929 11.7071L13 6.41421V20C13 20.5523 12.5523 21 12 21C11.4477 21 11 20.5523 11 20V6.41421L5.70711 11.7071C5.31658 12.0976 4.68342 12.0976 4.29289 11.7071C3.90237 11.3166 3.90237 10.6834 4.29289 10.2929L11.2929 3.29289C11.4804 3.10536 11.7348 3 12 3Z"
+            fill="#fff"
+          />
+        </svg>
+      </button>
+        {showButtonDropdown && (
+          <div className="w-40 fixed bottom-10 right-[10%] gap-2 flex flex-col">
+            <ButtonBar
+            smaller={true}
+              primary={primary}
+              secondary={secondary}
+              secondaryButton={secondaryButton}
+              primaryButton={primaryButton}
+              accent={accent}
+              clickHandler={clickHandler}
+              exportzipHandler={exportzipHandler}
+              randomColorHandler={randomColorHandler}
+            />
+            <div className="flex bg-black justify-center items-center py-4 ">
+              <button className="" onClick={()=>setShowButtonDropDown((prev)=>!prev)}>
+              <svg
+                width="30px"
+                height="30px"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 5V19M12 19L6 13M12 19L18 13"
+                  stroke="#fff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              </button>
+            </div>
+          </div>
+        )}
       <div
         style={{ color: primary }}
-        className="flex gap-2 fixed bottom-10 justify-center z-100 bg-slate-400 bg-opacity-35 left-[20%] p-2 rounded-xl"
+        className="hidden sm:flex gap-2 fixed bottom-10 justify-center z-100 bg-slate-400 bg-opacity-35 left-[20%] items-center p-2 rounded-xl"
       >
-        <button
-          style={{ backgroundColor: secondary }}
-          className="py-6 text-[1.1rem] bg-white rounded px-6"
-          onClick={(e) => clickHandler(e, "Text")}
-        >
-          Text
-        </button>
-        <button
-          style={{ backgroundColor: secondary }}
-          className="py-6 text-[1.1rem] rounded px-6"
-          onClick={(e) => clickHandler(e, "Background")}
-        >
-          Background
-        </button>
-        <button
-          style={{ backgroundColor: primaryButton }}
-          className="py-6 text-[1.1rem] rounded px-6"
-          onClick={(e) => clickHandler(e, "Primary Button")}
-        >
-          Primary Button
-        </button>
-        <button
-          style={{ backgroundColor: secondaryButton }}
-          className="py-6 text-[1.1rem] rounded px-6"
-          onClick={(e) => clickHandler(e, "Secondary Button")}
-        >
-          Secondary Button
-        </button>
-        <button
-          style={{ backgroundColor: accent }}
-          className="py-6 text-[1.1rem]  rounded px-6"
-          onClick={(e) => clickHandler(e, "Accent")}
-        >
-          Accent
-        </button>
-        <button
-          className="flex  gap-3 py-6 text-[1.1rem] bg-white text-black rounded px-6"
-        >
-          Export
-          <span>
-            <Export/>
-          </span>
-        </button>
-        <button
-          className="flex  gap-3 py-6 text-[1.1rem] bg-white text-black rounded px-6"
-          onClick={randomColorHandler}
-        >
-          Randomise
-          <span>
-            <Randomise/>
-          </span>
-        </button>
+        <ButtonBar
+          primary={primary}
+          secondary={secondary}
+          secondaryButton={secondaryButton}
+          primaryButton={primaryButton}
+          accent={accent}
+          clickHandler={clickHandler}
+          exportzipHandler={exportzipHandler}
+          randomColorHandler={randomColorHandler}
+        />
       </div>
     </>
   );
