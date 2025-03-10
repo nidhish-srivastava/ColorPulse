@@ -3,7 +3,7 @@ const Footer = () => {
     <footer className="bg-gray-900 text-gray-300 py-4 md:py-6">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center px-4 md:px-8">
         <p className="font-semibold text-sm md:text-[1.1rem] mb-4 md:mb-0 md:mr-4">
-          &copy; 2024 ColorPulse | Developed by Nidhish
+          &copy; {new Date().getFullYear()} ColorPulse | Developed by Nidhish
         </p>
         <div className="flex justify-center md:justify-end space-x-4">
           <SocialIcon
